@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Aperio Vici design tokens
+
+   Ground colour is book-cloth navy, not parchment. The only warm note is brass,
+   used where a bookbinder would use foil: the logotype, a verified payment, the
+   primary action. Everything else is held in navy, cool greys and rules.
+--------------------------------------------------------------------------- */
+
+@theme {
+  --color-ink: #10203a;
+  --color-ink-deep: #0a1526;
+  --color-ink-mid: #1c3050;
+  --color-ink-soft: #2c3e5a;
+  --color-muted: #5c6b80;
+  --color-faint: #8a97a8;
+
+  --color-page: #ffffff;
+  --color-surface: #f2f4f7;
+  --color-surface-deep: #e8ecf1;
+  --color-rule: #dde2e8;
+  --color-rule-strong: #c3ccd6;
+
+  --color-brass: #c08a2e;
+  --color-brass-deep: #9a6d1f;
+  --color-brass-soft: #f6ecd6;
+
+  --color-leaf: #1f6b4a;
+  --color-leaf-soft: #e3f0e9;
+
+  --color-flag: #b3261e;
+  --color-flag-soft: #fbe9e7;
+
+  --color-amber: #8a5a00;
+  --color-amber-soft: #fdf0d5;
+
+  --font-display: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  /* Books are rectangles. Radius stays small and differs by role. */
+  --radius-sheet: 4px;
+  --radius-control: 6px;
+  --radius-pill: 999px;
+
+  --shadow-lift: 0 12px 32px -12px rgba(16, 32, 58, 0.28);
+  --shadow-drop: 0 1px 2px rgba(16, 32, 58, 0.06);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-rule);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Serif body copy gets more leading than the sans UI text around it. */
+  .prose-editorial {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    line-height: 1.72;
+    max-width: 68ch;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.014em;
+    line-height: 1.14;
+    text-wrap: balance;
+  }
+
+  /* Money and order numbers must line up in columns and never reflow. */
+  .figure {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  .ref {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brass);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-brass-soft);
+    color: var(--color-ink-deep);
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* The hero shelf. Spines lean on each other the way they do on a real shelf. */
+  .shelf {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    overflow: hidden;
+  }
+
+  .spine {
+    flex: 0 0 auto;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    border-radius: 1px 3px 3px 1px;
+    box-shadow: inset -3px 0 6px -3px rgba(0, 0, 0, 0.45);
+    transition: transform 180ms ease;
+  }
+
+  .spine:hover,
+  .spine:focus-visible {
+    transform: translateY(-8px);
+  }
+
+  /* Fallback cover art. Built from the title, so every product has a cover. */
+  .cover-fallback {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-image: linear-gradient(
+      110deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(0, 0, 0, 0.12) 100%
+    );
+  }
+
+  .rule-grid {
+    background-image: linear-gradient(var(--color-rule) 1px, transparent 1px);
+    background-size: 100% 2.4rem;
+  }
+
+  .scroll-x {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scroll-x::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .scroll-x::-webkit-scrollbar-thumb {
+    background: var(--color-rule-strong);
+    border-radius: 999px;
+  }
+
+  /* One orchestrated entrance, on the hero only. */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .rise {
+    animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
