@@ -14,7 +14,7 @@ import { useCart } from "@/lib/cart-store";
 import { useToast } from "@/components/ui/toast";
 import { formatNaira } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { Minus, Plus, BookX, Truck, Store, ChevronRight } from "lucide-react";
+import { Minus, Plus, BookX, Truck, Store, ChevronRight, ShoppingBag, Zap, Share2, MessageCircle } from "lucide-react";
 
 export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -32,9 +32,9 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
         <SiteHeader />
         <main className="mx-auto max-w-[1240px] px-4 py-10 sm:px-6">
           <div className="grid gap-10 md:grid-cols-[minmax(0,380px)_1fr]">
-            <Skeleton className="aspect-[2/3] w-full" />
-            <div className="space-y-3">
-              <Skeleton className="h-9 w-3/4" />
+            <Skeleton className="aspect-[2/3] w-full rounded-xl" />
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-3/4" />
               <Skeleton className="h-5 w-1/3" />
               <Skeleton className="h-24 w-full" />
             </div>
@@ -111,25 +111,25 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       <CartDrawer />
 
       <main className="mx-auto max-w-[1240px] px-4 py-6 sm:px-6 sm:py-10">
-        <nav className="flex flex-wrap items-center gap-1 text-[13px] text-muted" aria-label="Breadcrumb">
-          <Link href="/shop" className="hover:text-ink">Shop</Link>
-          <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+        <nav className="flex flex-wrap items-center gap-1.5 text-[13px] text-muted rise" aria-label="Breadcrumb">
+          <Link href="/shop" className="transition-colors hover:text-ink">Shop</Link>
+          <ChevronRight className="h-3.5 w-3.5 text-faint" aria-hidden />
           {category && (
             <>
-              <Link href={`/shop?category=${category.slug}`} className="hover:text-ink">
+              <Link href={`/shop?category=${category.slug}`} className="transition-colors hover:text-ink">
                 {category.name}
               </Link>
-              <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+              <ChevronRight className="h-3.5 w-3.5 text-faint" aria-hidden />
             </>
           )}
-          <span className="text-ink-soft">{product.title}</span>
+          <span className="text-ink-soft font-medium">{product.title}</span>
         </nav>
 
-        <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,360px)_1fr] md:gap-12 lg:gap-16">
+        <div className="mt-7 grid gap-8 md:grid-cols-[minmax(0,380px)_1fr] md:gap-12 lg:gap-16 rise-delay-1">
           <div>
             <div
               className={cn(
-                "overflow-hidden rounded-[var(--radius-sheet)] border border-rule bg-surface",
+                "overflow-hidden rounded-xl border border-rule/60 bg-surface shadow-[var(--shadow-book)]",
                 product.kind === "book" ? "aspect-[2/3]" : "aspect-square",
               )}
             >
@@ -142,15 +142,15 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
             </div>
 
             {product.images.length > 1 && (
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3.5 flex gap-2.5">
                 {product.images.map((image, i) => (
                   <button
                     key={image}
                     onClick={() => setActiveImage(i)}
                     aria-label={`View image ${i + 1}`}
                     className={cn(
-                      "h-16 w-12 overflow-hidden rounded-[2px] border",
-                      i === activeImage ? "border-ink" : "border-rule",
+                      "h-16 w-12 overflow-hidden rounded-lg border-2 transition-all duration-200 shadow-[var(--shadow-xs)]",
+                      i === activeImage ? "border-brass ring-2 ring-brass/20" : "border-rule/60 hover:border-ink/30",
                     )}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -161,16 +161,16 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
             )}
           </div>
 
-          <div className="min-w-0">
-            <h1 className="font-display text-[30px] leading-[1.1] text-ink sm:text-[38px]">
+          <div className="min-w-0 rise-delay-2">
+            <h1 className="font-display text-[30px] leading-[1.1] text-ink sm:text-[40px]">
               {product.title}
             </h1>
             {product.author && (
-              <p className="mt-2 font-display text-[19px] italic text-muted">{product.author}</p>
+              <p className="mt-2.5 font-display text-[19px] italic text-muted">{product.author}</p>
             )}
 
-            <div className="mt-5 flex flex-wrap items-baseline gap-3">
-              <span className="figure font-display text-[30px] text-ink">
+            <div className="mt-6 flex flex-wrap items-baseline gap-3">
+              <span className="figure font-display text-[32px] text-ink">
                 {formatNaira(product.price)}
               </span>
               {reduced && (
@@ -190,38 +190,42 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                 <Badge tone="bad">Out of stock</Badge>
               ) : product.stock <= product.lowStockThreshold ? (
                 <Badge tone="warn">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber pulse-soft" />
                   Only {product.stock} left on the shelf
                 </Badge>
               ) : (
-                <Badge tone="good">In stock, ready to pack</Badge>
+                <Badge tone="good">
+                  <span className="h-1.5 w-1.5 rounded-full bg-leaf pulse-soft" />
+                  In stock, ready to pack
+                </Badge>
               )}
             </div>
 
             {outOfStock ? (
-              <div className="mt-6 rounded-[var(--radius-sheet)] border border-rule bg-surface p-4">
-                <p className="text-[14.5px] text-ink-soft">
+              <div className="mt-7 rounded-xl border border-rule/70 bg-surface/50 p-5 shadow-[var(--shadow-xs)]">
+                <p className="text-[14.5px] text-ink-soft leading-relaxed">
                   We have sold out of this one. Call {settings?.phone ?? "the shop"} and we will tell
                   you when the next copies land, or order it in for you.
                 </p>
               </div>
             ) : (
-              <div className="mt-6 space-y-3">
+              <div className="mt-7 space-y-4">
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center rounded-[var(--radius-control)] border border-rule-strong bg-white">
+                  <div className="flex items-center rounded-xl border border-rule/80 bg-white shadow-[var(--shadow-card)]">
                     <button
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                       disabled={quantity <= 1}
                       aria-label="Reduce quantity"
-                      className="flex h-11 w-11 items-center justify-center text-muted transition hover:text-ink disabled:text-rule-strong active:scale-90"
+                      className="flex h-12 w-12 items-center justify-center text-muted transition-colors hover:text-ink hover:bg-surface disabled:text-rule-strong active:scale-90 rounded-l-xl"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="figure w-10 text-center text-[16px] font-semibold">{quantity}</span>
+                    <span className="figure w-10 text-center text-[16px] font-bold">{quantity}</span>
                     <button
                       onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
                       disabled={quantity >= product.stock}
                       aria-label="Increase quantity"
-                      className="flex h-11 w-11 items-center justify-center text-muted transition hover:text-ink disabled:text-rule-strong active:scale-90"
+                      className="flex h-12 w-12 items-center justify-center text-muted transition-colors hover:text-ink hover:bg-surface disabled:text-rule-strong active:scale-90 rounded-r-xl"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
@@ -230,8 +234,10 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                   <Button
                     size="lg"
                     onClick={addToBasket}
-                    className="flex-1 sm:flex-none sm:px-8 border border-rule-strong bg-surface text-ink hover:bg-surface-deep active:scale-95"
+                    variant="secondary"
+                    className="flex-1 sm:flex-none sm:px-8"
                   >
+                    <ShoppingBag className="h-4 w-4" />
                     Add to basket
                   </Button>
 
@@ -241,22 +247,25 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                       addToBasket();
                       window.location.href = "/checkout";
                     }}
-                    className="flex-1 sm:flex-none sm:px-8 bg-gradient-to-r from-brass to-brass-deep text-white shadow-md hover:brightness-105 active:scale-95"
+                    variant="brass"
+                    className="flex-1 sm:flex-none sm:px-8 gradient-shine"
                   >
+                    <Zap className="h-4 w-4" />
                     Buy now
                   </Button>
                 </div>
 
                 {/* Share & Inquiry buttons */}
-                <div className="flex flex-wrap items-center gap-2 pt-1 text-[13px]">
+                <div className="flex flex-wrap items-center gap-2 pt-1">
                   <button
                     onClick={() => {
                       navigator.clipboard?.writeText(window.location.href);
                       notify("Product link copied to clipboard", "good");
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-rule px-3 py-1.5 text-muted transition hover:border-ink hover:text-ink"
+                    className="inline-flex items-center gap-2 rounded-lg border border-rule/80 px-3.5 py-2 text-[13px] font-medium text-muted transition-all hover:border-ink hover:text-ink hover:shadow-[var(--shadow-xs)]"
                   >
-                    <span>Share this book</span>
+                    <Share2 className="h-3.5 w-3.5" />
+                    Share
                   </button>
 
                   {settings?.phone && (
@@ -266,41 +275,49 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-md border border-rule px-3 py-1.5 text-muted transition hover:border-leaf hover:text-leaf"
+                      className="inline-flex items-center gap-2 rounded-lg border border-rule/80 px-3.5 py-2 text-[13px] font-medium text-muted transition-all hover:border-leaf hover:text-leaf hover:shadow-[var(--shadow-xs)]"
                     >
-                      <span>Inquire on WhatsApp</span>
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      WhatsApp inquiry
                     </a>
                   )}
                 </div>
               </div>
             )}
 
-            <div className="mt-6 flex flex-col gap-2.5 rounded-md border border-rule/80 bg-surface/40 p-4 text-[13.5px] text-muted">
-              <span className="flex items-center gap-2.5 font-medium text-ink">
-                <Truck className="h-4 w-4 shrink-0 text-brass-deep" aria-hidden />
+            <div className="mt-7 flex flex-col gap-3 rounded-xl border border-rule/60 bg-gradient-to-r from-surface/60 to-white p-5 text-[13.5px] text-muted shadow-[var(--shadow-xs)]">
+              <span className="flex items-center gap-3 font-medium text-ink">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brass/10">
+                  <Truck className="h-4 w-4 text-brass-deep" aria-hidden />
+                </div>
                 Delivered anywhere in Nigeria. Fee calculated at checkout based on your state.
               </span>
-              <span className="flex items-center gap-2.5">
-                <Store className="h-4 w-4 shrink-0 text-brass-deep" aria-hidden />
+              <span className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brass/10">
+                  <Store className="h-4 w-4 text-brass-deep" aria-hidden />
+                </div>
                 Or collect in person from {settings?.address ?? "the Lagos bookshop"} with zero delivery fee.
               </span>
             </div>
 
-            <div className="mt-7">
-              <h2 className="text-[15px] font-semibold text-ink">About this {product.kind}</h2>
-              <p className="prose-editorial mt-2 text-ink-soft">{product.description}</p>
+            <div className="mt-8">
+              <h2 className="text-[15px] font-bold text-ink">About this {product.kind}</h2>
+              <p className="prose-editorial mt-2.5 text-ink-soft">{product.description}</p>
             </div>
 
             <div className="mt-8">
-              <h2 className="text-[15px] font-semibold text-ink">Details</h2>
+              <h2 className="text-[15px] font-bold text-ink">Details</h2>
               <dl className="mt-3 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-                {details.map((detail) => (
+                {details.map((detail, i) => (
                   <div
                     key={detail.label}
-                    className="flex justify-between gap-4 border-b border-rule py-2 text-[14px]"
+                    className={cn(
+                      "flex justify-between gap-4 border-b border-rule/60 py-2.5 text-[14px]",
+                      i % 2 === 0 && "sm:bg-surface/30 sm:-mx-2 sm:px-2 sm:rounded",
+                    )}
                   >
                     <dt className="text-muted">{detail.label}</dt>
-                    <dd className={cn("text-right text-ink", detail.label === "ISBN" && "figure")}>
+                    <dd className={cn("text-right font-medium text-ink", detail.label === "ISBN" && "figure")}>
                       {detail.value}
                     </dd>
                   </div>
@@ -314,7 +331,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                   <Link
                     key={tag}
                     href={`/shop?q=${encodeURIComponent(tag)}`}
-                    className="rounded-[var(--radius-pill)] bg-surface px-3 py-1 text-[12.5px] text-muted hover:bg-surface-deep hover:text-ink"
+                    className="rounded-full bg-surface px-3.5 py-1.5 text-[12.5px] font-medium text-muted transition-all hover:bg-surface-deep hover:text-ink hover:shadow-[var(--shadow-xs)]"
                   >
                     {tag}
                   </Link>
@@ -325,11 +342,12 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
         </div>
 
         {related.length > 0 && (
-          <section className="mt-16 border-t border-rule pt-10">
-            <h2 className="font-display text-[24px] text-ink">
+          <section className="mt-16 border-t border-rule/60 pt-12">
+            <div className="section-label">More like this</div>
+            <h2 className="mt-2 font-display text-[26px] text-ink">
               On the same shelf
             </h2>
-            <div className="mt-6">
+            <div className="mt-7">
               <ProductGrid products={related} />
             </div>
           </section>

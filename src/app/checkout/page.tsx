@@ -14,7 +14,13 @@ import { useCart, cartSubtotal } from "@/lib/cart-store";
 import { formatNaira, isValidPhone } from "@/lib/format";
 import { NIGERIAN_STATES } from "@/lib/nigeria";
 import { cn } from "@/lib/utils";
-import { ShoppingBag, Truck, Store, Lock } from "lucide-react";
+import { ShoppingBag, Truck, Store, Lock, Check, ChevronRight } from "lucide-react";
+
+const STEPS = [
+  { label: "Basket", done: true },
+  { label: "Details", active: true },
+  { label: "Payment" },
+];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -118,17 +124,42 @@ export default function CheckoutPage() {
       <SiteHeader />
 
       <main className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-12">
-        <h1 className="font-display text-[30px] leading-tight text-ink sm:text-[38px]">Checkout</h1>
-        <p className="mt-2 max-w-xl text-[15px] text-muted">
+        {/* Progress Steps */}
+        <div className="mb-10 flex items-center justify-center gap-2 rise">
+          {STEPS.map((step, i) => (
+            <div key={step.label} className="flex items-center gap-2">
+              <div className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-bold transition-all",
+                step.done ? "bg-leaf text-white" :
+                step.active ? "gradient-brass text-white shadow-[var(--shadow-glow-brass)]" :
+                "bg-surface-deep text-faint",
+              )}>
+                {step.done ? <Check className="h-4 w-4" /> : i + 1}
+              </div>
+              <span className={cn(
+                "text-[13px] font-semibold",
+                step.active ? "text-ink" : step.done ? "text-leaf" : "text-faint",
+              )}>
+                {step.label}
+              </span>
+              {i < STEPS.length - 1 && (
+                <ChevronRight className="h-4 w-4 text-rule-strong mx-1" />
+              )}
+            </div>
+          ))}
+        </div>
+
+        <h1 className="font-display text-[30px] leading-tight text-ink sm:text-[38px] rise-delay-1">Checkout</h1>
+        <p className="mt-2.5 max-w-xl text-[15px] text-muted rise-delay-2">
           We do not take card details here. You place the order, we show you our account, and you
           transfer the total.
         </p>
 
-        <form onSubmit={submit} className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px] lg:gap-12">
-          <div className="space-y-9">
-            <section>
+        <form onSubmit={submit} className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px] lg:gap-12 rise-delay-3">
+          <div className="space-y-10">
+            <section className="rounded-xl border border-rule/60 bg-white p-6 shadow-[var(--shadow-card)]">
               <h2 className="font-display text-[21px] text-ink">Who is this order for?</h2>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <Field
                   label="Full name"
                   required
@@ -177,9 +208,9 @@ export default function CheckoutPage() {
               </div>
             </section>
 
-            <section>
+            <section className="rounded-xl border border-rule/60 bg-white p-6 shadow-[var(--shadow-card)]">
               <h2 className="font-display text-[21px] text-ink">How should we get it to you?</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 {[
                   {
                     value: "delivery" as const,
@@ -199,21 +230,20 @@ export default function CheckoutPage() {
                     type="button"
                     onClick={() => setFulfilment(option.value)}
                     className={cn(
-                      "flex gap-3 rounded-[var(--radius-sheet)] border p-4 text-left transition",
+                      "flex gap-3.5 rounded-xl border-2 p-4 text-left transition-all duration-200",
                       fulfilment === option.value
-                        ? "border-ink bg-surface ring-1 ring-ink"
-                        : "border-rule hover:border-rule-strong",
+                        ? "border-brass bg-brass/5 shadow-[var(--shadow-card)]"
+                        : "border-rule/60 hover:border-rule-strong hover:shadow-[var(--shadow-xs)]",
                     )}
                   >
-                    <option.icon
-                      className={cn(
-                        "mt-0.5 h-5 w-5 shrink-0",
-                        fulfilment === option.value ? "text-brass-deep" : "text-muted",
-                      )}
-                      aria-hidden
-                    />
+                    <div className={cn(
+                      "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors",
+                      fulfilment === option.value ? "bg-brass/15 text-brass-deep" : "bg-surface text-muted",
+                    )}>
+                      <option.icon className="h-5 w-5" aria-hidden />
+                    </div>
                     <span>
-                      <span className="block text-[15px] font-medium text-ink">{option.title}</span>
+                      <span className="block text-[15px] font-semibold text-ink">{option.title}</span>
                       <span className="mt-0.5 block text-[13px] leading-snug text-muted">
                         {option.body}
                       </span>
@@ -223,7 +253,7 @@ export default function CheckoutPage() {
               </div>
 
               {fulfilment === "delivery" ? (
-                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   <Field
                     label="Street address"
                     required
@@ -281,7 +311,7 @@ export default function CheckoutPage() {
                   </Field>
                 </div>
               ) : (
-                <div className="mt-5 rounded-[var(--radius-sheet)] border border-rule bg-surface p-4">
+                <div className="mt-5 rounded-xl border border-rule/60 bg-surface/50 p-5">
                   <p className="text-[14.5px] leading-relaxed text-ink-soft">
                     {settings?.pickupInstructions ??
                       "Bring your order number when you come to collect."}
@@ -293,7 +323,7 @@ export default function CheckoutPage() {
               )}
             </section>
 
-            <section>
+            <section className="rounded-xl border border-rule/60 bg-white p-6 shadow-[var(--shadow-card)]">
               <Field
                 label="Anything we should know?"
                 htmlFor="note"
@@ -310,40 +340,40 @@ export default function CheckoutPage() {
           </div>
 
           <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-[var(--radius-sheet)] border border-rule">
-              <div className="border-b border-rule px-4 py-3">
-                <h2 className="text-[15px] font-semibold text-ink">Your order</h2>
+            <div className="rounded-xl border border-rule/60 bg-white shadow-[var(--shadow-card)] overflow-hidden">
+              <div className="border-b border-rule bg-gradient-to-r from-surface/60 to-white px-5 py-4">
+                <h2 className="text-[16px] font-bold text-ink">Your order</h2>
               </div>
 
-              <div className="max-h-72 overflow-y-auto px-4">
+              <div className="max-h-72 overflow-y-auto px-5">
                 {lines.map((line) => (
-                  <div key={line.productId} className="flex gap-3 border-b border-rule py-3 last:border-0">
-                    <span className="h-16 w-11 shrink-0 overflow-hidden rounded-[2px] border border-rule">
+                  <div key={line.productId} className="flex gap-3.5 border-b border-rule/60 py-3.5 last:border-0">
+                    <span className="h-16 w-11 shrink-0 overflow-hidden rounded-lg border border-rule/60 shadow-[var(--shadow-xs)]">
                       <BookCover title={line.title} kind={line.kind} imageUrl={line.imageUrl} compact />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[14px] text-ink">{line.title}</span>
+                      <span className="block truncate text-[14px] font-medium text-ink">{line.title}</span>
                       <span className="figure block text-[12.5px] text-muted">
                         {line.quantity} × {formatNaira(line.price)}
                       </span>
                     </span>
-                    <span className="figure shrink-0 text-[14px] font-medium text-ink">
+                    <span className="figure shrink-0 text-[14px] font-semibold text-ink">
                       {formatNaira(line.price * line.quantity)}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="space-y-2 border-t border-rule px-4 py-4 text-[14px]">
+              <div className="space-y-2.5 border-t border-rule px-5 py-4 text-[14px]">
                 <div className="flex justify-between">
                   <span className="text-muted">Subtotal</span>
-                  <span className="figure text-ink">{formatNaira(subtotal)}</span>
+                  <span className="figure font-medium text-ink">{formatNaira(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">
                     {fulfilment === "pickup" ? "Pickup" : state ? `Delivery to ${state}` : "Delivery"}
                   </span>
-                  <span className="figure text-ink">
+                  <span className="figure font-medium text-ink">
                     {fulfilment === "pickup"
                       ? "Free"
                       : !state
@@ -354,13 +384,13 @@ export default function CheckoutPage() {
                   </span>
                 </div>
                 <div className="flex items-baseline justify-between border-t border-rule pt-3">
-                  <span className="font-medium text-ink">Total to transfer</span>
-                  <span className="figure font-display text-[24px] text-ink">{formatNaira(total)}</span>
+                  <span className="font-bold text-ink">Total to transfer</span>
+                  <span className="figure font-display text-[26px] font-bold text-ink">{formatNaira(total)}</span>
                 </div>
               </div>
 
               {quote && quote.unavailable.length > 0 && (
-                <div className="px-4 pb-4">
+                <div className="px-5 pb-4">
                   <Alert tone="bad" title="Some items ran out">
                     {quote.unavailable.join(", ")} no longer has enough stock. Reduce the quantity in
                     your basket before you continue.
@@ -369,22 +399,25 @@ export default function CheckoutPage() {
               )}
 
               {error && (
-                <div className="px-4 pb-4">
+                <div className="px-5 pb-4">
                   <Alert tone="bad">{error}</Alert>
                 </div>
               )}
 
-              <div className="border-t border-rule px-4 py-4">
+              <div className="border-t border-rule px-5 py-5">
                 <Button
                   type="submit"
                   size="lg"
                   fullWidth
+                  variant="brass"
                   loading={submitting}
                   disabled={!!quote && quote.unavailable.length > 0}
+                  className="gradient-shine"
                 >
+                  <Lock className="h-4 w-4" />
                   Place order
                 </Button>
-                <p className="mt-3 flex items-start gap-2 text-[12.5px] leading-snug text-muted">
+                <p className="mt-3.5 flex items-start gap-2 text-[12.5px] leading-snug text-muted">
                   <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
                   Placing the order holds your items. You will see our account details next, and the
                   order is confirmed once we see your transfer.

@@ -14,14 +14,14 @@ import { formatNaira, formatDateTime } from "@/lib/format";
 import { NIGERIAN_BANKS } from "@/lib/nigeria";
 import { ORDER_STATUS, STATUS_TONE_CLASS, type OrderStatus } from "@/lib/status";
 import { cn } from "@/lib/utils";
-import { Copy, Check, Upload, FileSearch, MessageCircle, Landmark } from "lucide-react";
+import { Copy, Check, Upload, FileSearch, MessageCircle, Landmark, Shield } from "lucide-react";
 
 function CopyField({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   const [copied, setCopied] = useState(false);
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-rule py-2.5 last:border-0">
+    <div className="flex items-center justify-between gap-3 border-b border-rule/60 py-3 last:border-0">
       <div className="min-w-0">
-        <p className="text-[12.5px] text-muted">{label}</p>
+        <p className="text-[12px] font-medium text-muted">{label}</p>
         <p className={cn("truncate text-[15px] text-ink", mono && "ref")}>{value}</p>
       </div>
       <button
@@ -30,12 +30,16 @@ function CopyField({ label, value, mono }: { label: string; value: string; mono?
           setCopied(true);
           setTimeout(() => setCopied(false), 1600);
         }}
-        className="shrink-0 rounded-[var(--radius-control)] border border-rule px-2.5 py-1.5 text-[12.5px]
-                   text-ink-soft transition hover:border-ink hover:text-ink"
+        className={cn(
+          "shrink-0 rounded-lg border px-3 py-1.5 text-[12.5px] font-semibold transition-all",
+          copied
+            ? "border-leaf bg-leaf-soft text-leaf"
+            : "border-rule/80 text-ink-soft hover:border-ink hover:text-ink hover:shadow-[var(--shadow-xs)]",
+        )}
         aria-label={`Copy ${label}`}
       >
         {copied ? (
-          <span className="flex items-center gap-1 text-leaf"><Check className="h-3.5 w-3.5" /> Copied</span>
+          <span className="flex items-center gap-1"><Check className="h-3.5 w-3.5" /> Copied</span>
         ) : (
           <span className="flex items-center gap-1"><Copy className="h-3.5 w-3.5" /> Copy</span>
         )}
@@ -134,19 +138,19 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
       <SiteHeader />
 
       <main className="mx-auto max-w-[900px] px-4 py-8 sm:px-6 sm:py-12">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4 rise">
           <div>
-            <p className="text-[14px] text-muted">Order</p>
-            <h1 className="ref font-display text-[34px] leading-none text-ink sm:text-[42px]">
+            <p className="text-[13px] font-medium uppercase tracking-wider text-muted">Order</p>
+            <h1 className="ref font-display text-[36px] leading-none text-ink sm:text-[44px]">
               {order.orderNumber}
             </h1>
-            <p className="mt-2 text-[14px] text-muted">
+            <p className="mt-2.5 text-[14px] text-muted">
               Placed {formatDateTime(order.createdAt)} for {order.customerName}
             </p>
           </div>
           <span
             className={cn(
-              "rounded-[var(--radius-pill)] border px-3 py-1.5 text-[13px] font-medium",
+              "rounded-full border px-4 py-2 text-[13px] font-bold shadow-[var(--shadow-xs)]",
               STATUS_TONE_CLASS[status.tone],
             )}
           >
@@ -154,12 +158,12 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
           </span>
         </div>
 
-        <p className="mt-4 max-w-2xl text-[15.5px] leading-relaxed text-ink-soft">
+        <p className="mt-5 max-w-2xl text-[15.5px] leading-relaxed text-ink-soft rise-delay-1">
           {status.customerDetail}
         </p>
 
         {rejectionReason && order.status === "awaiting_payment" && (
-          <div className="mt-5">
+          <div className="mt-5 rise-delay-2">
             <Alert tone="bad" title="We could not confirm your last transfer">
               {rejectionReason} Send the details again once it is sorted, or call the shop.
             </Alert>
@@ -167,41 +171,44 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
         )}
 
         {needsPayment && (
-          <section className="mt-8">
-            {/* The transfer instruction is the single most important thing on
-                this page, so it gets the brass and the largest figure. */}
-            <div className="overflow-hidden rounded-[var(--radius-sheet)] border-2 border-brass">
-              <div className="flex flex-wrap items-baseline justify-between gap-3 bg-brass-soft px-5 py-4">
-                <div className="flex items-center gap-2">
-                  <Landmark className="h-4 w-4 text-brass-deep" aria-hidden />
-                  <h2 className="text-[15px] font-semibold text-ink">Transfer this exact amount</h2>
+          <section className="mt-8 rise-delay-2">
+            {/* Transfer instruction card — the most important element */}
+            <div className="overflow-hidden rounded-2xl border-2 border-brass shadow-[var(--shadow-card)]">
+              {/* Amount header */}
+              <div className="flex flex-wrap items-baseline justify-between gap-3 bg-gradient-to-r from-brass-soft to-brass-glow px-6 py-5">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brass/15">
+                    <Landmark className="h-4.5 w-4.5 text-brass-deep" aria-hidden />
+                  </div>
+                  <h2 className="text-[16px] font-bold text-ink">Transfer this exact amount</h2>
                 </div>
-                <span className="figure font-display text-[30px] leading-none text-ink">
+                <span className="figure font-display text-[32px] leading-none text-ink font-bold">
                   {formatNaira(outstanding)}
                 </span>
               </div>
 
-              <div className="px-5 py-4">
-                <div className="mb-4 rounded-md border border-amber/30 bg-amber-soft/40 p-3.5 text-[13.5px]">
-                  <div className="flex items-center justify-between gap-3">
+              <div className="px-6 py-5">
+                {/* Narration callout */}
+                <div className="mb-5 rounded-xl border border-brass/30 bg-gradient-to-r from-amber-soft/50 to-brass-soft/30 p-4">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div>
-                      <p className="font-semibold text-ink">Transfer Narration / Reference</p>
-                      <p className="text-muted mt-0.5">Please put this exact code in your bank app narration:</p>
+                      <p className="font-bold text-[14px] text-ink">Transfer Narration / Reference</p>
+                      <p className="text-[13px] text-muted mt-0.5">Put this exact code in your bank app narration:</p>
                     </div>
                     <button
                       onClick={() => {
                         navigator.clipboard?.writeText(order.orderNumber);
                         notify(`Copied narration: ${order.orderNumber}`, "good");
                       }}
-                      className="shrink-0 rounded-[var(--radius-control)] border border-brass bg-white px-3 py-1.5 text-[13px] font-semibold text-ink transition hover:bg-brass hover:text-white active:scale-95 shadow-xs"
+                      className="shrink-0 rounded-xl border-2 border-brass bg-white px-4 py-2 text-[14px] font-bold text-ink transition-all hover:bg-brass hover:text-white active:scale-95 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow-brass)] btn-press"
                     >
                       <span className="ref">{order.orderNumber}</span> · Copy
                     </button>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-[12.5px] text-leaf mb-4 font-medium">
-                  <Check className="h-4 w-4" />
+                <div className="flex items-center gap-2.5 text-[13px] text-leaf mb-5 font-semibold bg-leaf-soft/50 rounded-lg px-3.5 py-2.5">
+                  <Shield className="h-4 w-4" />
                   <span>Your items are held in store while payment clears.</span>
                 </div>
 
@@ -212,29 +219,27 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
                   </Alert>
                 ) : (
                   <div>
-                    <p className="text-[13px] font-medium text-muted mb-2">Available Bank Accounts:</p>
+                    <p className="text-[13px] font-bold uppercase tracking-wider text-muted mb-3">Available Bank Accounts</p>
                     <div className="grid gap-4 sm:grid-cols-2">
                       {bankAccounts.map((account) => (
                         <div
                           key={account.accountNumber}
-                          className="rounded-[var(--radius-sheet)] border border-rule/90 bg-surface/30 px-4 py-3 shadow-xs hover:border-brass/60 transition"
+                          className="rounded-xl border border-rule/60 bg-white p-4 shadow-[var(--shadow-card)] transition-all hover:border-brass/50 hover:shadow-[var(--shadow-book)]"
                         >
-                          <div className="flex items-center justify-between">
-                            <p className="text-[14px] font-semibold text-ink">{account.bankName}</p>
-                            <span className="text-[10.5px] uppercase font-bold text-brass-deep bg-brass/10 px-1.5 py-0.5 rounded">Verified</span>
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-[14px] font-bold text-ink">{account.bankName}</p>
+                            <span className="text-[10px] uppercase font-bold text-leaf bg-leaf-soft px-2 py-0.5 rounded-full">Verified</span>
                           </div>
-                          <div className="mt-2">
-                            <CopyField label="Account number" value={account.accountNumber} mono />
-                            <CopyField label="Account name" value={account.accountName} />
-                          </div>
+                          <CopyField label="Account number" value={account.accountNumber} mono />
+                          <CopyField label="Account name" value={account.accountName} />
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <Button size="lg" variant="brass" onClick={() => { setAmount(outstanding); setFormOpen(true); }}>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Button size="lg" variant="brass" onClick={() => { setAmount(outstanding); setFormOpen(true); }} className="gradient-shine">
                     I have sent the money
                   </Button>
                   {whatsapp && (
@@ -254,7 +259,7 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
                 </div>
 
                 {hasSubmittedPayment && (
-                  <p className="mt-3 text-[13.5px] text-muted">
+                  <p className="mt-4 text-[13.5px] text-muted rounded-lg bg-surface/50 px-3.5 py-2.5">
                     You have already sent us your transfer details. We are checking them — there is
                     nothing else for you to do.
                   </p>
@@ -264,51 +269,51 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
           </section>
         )}
 
-        <section className="mt-10 grid gap-8 md:grid-cols-[1fr_300px]">
+        <section className="mt-10 grid gap-8 md:grid-cols-[1fr_300px] rise-delay-3">
           <div>
-            <h2 className="text-[15px] font-semibold text-ink">What you ordered</h2>
-            <div className="mt-3 rounded-[var(--radius-sheet)] border border-rule">
+            <h2 className="text-[15px] font-bold text-ink">What you ordered</h2>
+            <div className="mt-3 rounded-xl border border-rule/60 shadow-[var(--shadow-card)] overflow-hidden">
               {order.items.map((item) => (
-                <div key={item.productId} className="flex gap-3 border-b border-rule px-4 py-3 last:border-0">
-                  <span className="h-16 w-11 shrink-0 overflow-hidden rounded-[2px] border border-rule">
+                <div key={item.productId} className="flex gap-3.5 border-b border-rule/60 px-4 py-3.5 last:border-0">
+                  <span className="h-16 w-11 shrink-0 overflow-hidden rounded-lg border border-rule/60 shadow-[var(--shadow-xs)]">
                     <BookCover title={item.title} kind="book" imageUrl={item.imageUrl} compact />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[14.5px] text-ink">{item.title}</span>
+                    <span className="block text-[14.5px] font-medium text-ink">{item.title}</span>
                     {item.author && <span className="block text-[13px] text-muted">{item.author}</span>}
                     <span className="figure block text-[13px] text-muted">
                       {item.quantity} × {formatNaira(item.unitPrice)}
                     </span>
                   </span>
-                  <span className="figure shrink-0 text-[14px] font-medium text-ink">
+                  <span className="figure shrink-0 text-[14px] font-bold text-ink">
                     {formatNaira(item.lineTotal)}
                   </span>
                 </div>
               ))}
 
-              <div className="space-y-2 border-t border-rule bg-surface px-4 py-3 text-[14px]">
+              <div className="space-y-2 border-t border-rule bg-gradient-to-b from-surface/50 to-white px-4 py-4 text-[14px]">
                 <div className="flex justify-between">
                   <span className="text-muted">Subtotal</span>
-                  <span className="figure">{formatNaira(order.subtotal)}</span>
+                  <span className="figure font-medium">{formatNaira(order.subtotal)}</span>
                 </div>
                 {order.deliveryFee > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted">Delivery</span>
-                    <span className="figure">{formatNaira(order.deliveryFee)}</span>
+                    <span className="figure font-medium">{formatNaira(order.deliveryFee)}</span>
                   </div>
                 )}
                 {order.discount > 0 && (
                   <div className="flex justify-between text-leaf">
                     <span>Discount</span>
-                    <span className="figure">−{formatNaira(order.discount)}</span>
+                    <span className="figure font-medium">−{formatNaira(order.discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between border-t border-rule pt-2 font-medium">
+                <div className="flex justify-between border-t border-rule pt-2.5 font-bold">
                   <span>Total</span>
                   <span className="figure">{formatNaira(order.total)}</span>
                 </div>
                 {order.amountPaid > 0 && order.amountPaid < order.total && (
-                  <div className="flex justify-between text-amber">
+                  <div className="flex justify-between text-amber font-medium">
                     <span>Received so far</span>
                     <span className="figure">{formatNaira(order.amountPaid)}</span>
                   </div>
@@ -317,14 +322,14 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-7">
             <div>
-              <h2 className="text-[15px] font-semibold text-ink">
+              <h2 className="text-[15px] font-bold text-ink">
                 {order.fulfilment === "delivery" ? "Delivering to" : "Collecting from the shop"}
               </h2>
               {order.address ? (
-                <address className="mt-2 text-[14px] not-italic leading-relaxed text-muted">
-                  {order.customerName}
+                <address className="mt-2.5 rounded-xl border border-rule/60 bg-surface/30 p-4 text-[14px] not-italic leading-relaxed text-muted shadow-[var(--shadow-xs)]">
+                  <span className="font-medium text-ink">{order.customerName}</span>
                   <br />
                   {order.address.street}
                   <br />
@@ -336,33 +341,26 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
                     </>
                   )}
                   <br />
-                  <span className="figure">{order.customerPhone}</span>
+                  <span className="figure font-medium">{order.customerPhone}</span>
                 </address>
               ) : (
-                <p className="mt-2 text-[14px] leading-relaxed text-muted">
+                <p className="mt-2 rounded-xl border border-rule/60 bg-surface/30 p-4 text-[14px] leading-relaxed text-muted shadow-[var(--shadow-xs)]">
                   {data.pickupInstructions}
                 </p>
               )}
             </div>
 
             <div>
-              <h2 className="text-[15px] font-semibold text-ink">Progress</h2>
-              <ol className="mt-3 space-y-3">
+              <h2 className="text-[15px] font-bold text-ink">Progress</h2>
+              <ol className="mt-4 space-y-0">
                 {[...order.timeline].reverse().map((entry, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span
-                      className={cn(
-                        "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                        i === 0 ? "bg-brass" : "bg-rule-strong",
-                      )}
-                      aria-hidden
-                    />
+                  <li key={i} className={cn("timeline-step pb-5", i === 0 && "timeline-active")}>
                     <div className="min-w-0">
-                      <p className="text-[14px] text-ink">
+                      <p className="text-[14px] font-medium text-ink">
                         {ORDER_STATUS[entry.status as OrderStatus]?.customerLabel ?? entry.status}
                       </p>
-                      {entry.note && <p className="text-[13px] text-muted">{entry.note}</p>}
-                      <p className="text-[12.5px] text-faint">{formatDateTime(entry.at)}</p>
+                      {entry.note && <p className="text-[13px] text-muted mt-0.5">{entry.note}</p>}
+                      <p className="text-[12.5px] text-faint mt-0.5">{formatDateTime(entry.at)}</p>
                     </div>
                   </li>
                 ))}
@@ -371,9 +369,9 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
           </div>
         </section>
 
-        <p className="mt-10 text-[13.5px] text-muted">
+        <p className="mt-12 rounded-xl border border-rule/60 bg-surface/30 p-4 text-[13.5px] text-muted shadow-[var(--shadow-xs)]">
           Save this page. You can come back to it any time at{" "}
-          <Link href="/track" className="text-brass-deep underline-offset-4 hover:underline">
+          <Link href="/track" className="text-brass-deep font-semibold underline-offset-4 hover:underline">
             the tracking page
           </Link>{" "}
           with your order number and the last four digits of your phone number.
@@ -422,8 +420,8 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
           </Field>
 
           <Field label="Screenshot of the transfer" hint="Optional, but it gets your order confirmed faster.">
-            <label className="flex cursor-pointer items-center gap-3 rounded-[var(--radius-control)] border border-dashed border-rule-strong px-4 py-3 hover:border-ink">
-              <Upload className="h-4 w-4 text-muted" aria-hidden />
+            <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-rule-strong px-4 py-4 transition-all hover:border-brass hover:bg-brass/5">
+              <Upload className="h-5 w-5 text-muted" aria-hidden />
               <span className="text-[14px] text-muted">
                 {file ? file.name : "Choose an image"}
               </span>
@@ -438,8 +436,8 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
 
           {error && <Alert tone="bad">{error}</Alert>}
 
-          <div className="flex gap-2 pt-1">
-            <Button type="submit" loading={busy} fullWidth size="lg">
+          <div className="flex gap-2 pt-2">
+            <Button type="submit" loading={busy} fullWidth size="lg" variant="brass" className="gradient-shine">
               Send for confirmation
             </Button>
           </div>

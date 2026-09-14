@@ -9,19 +9,19 @@ type Size = "sm" | "md" | "lg";
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-ink text-white hover:bg-ink-mid active:bg-ink-deep disabled:bg-rule-strong disabled:text-white",
+    "bg-ink text-white shadow-[var(--shadow-drop)] hover:bg-ink-mid active:bg-ink-deep disabled:bg-rule-strong disabled:text-white disabled:shadow-none",
   brass:
-    "bg-brass text-ink-deep hover:bg-brass-deep hover:text-white active:bg-brass-deep disabled:bg-rule-strong disabled:text-white",
+    "gradient-brass text-white shadow-[var(--shadow-drop)] hover:brightness-110 active:brightness-95 disabled:bg-rule-strong disabled:text-white disabled:shadow-none",
   secondary:
-    "bg-white text-ink border border-rule-strong hover:border-ink hover:bg-surface disabled:text-faint disabled:border-rule",
+    "bg-white text-ink border border-rule-strong shadow-[var(--shadow-xs)] hover:border-ink hover:bg-surface hover:shadow-[var(--shadow-drop)] disabled:text-faint disabled:border-rule disabled:shadow-none",
   ghost: "bg-transparent text-ink hover:bg-surface disabled:text-faint",
-  danger: "bg-flag text-white hover:brightness-110 disabled:bg-rule-strong",
+  danger: "bg-flag text-white shadow-[var(--shadow-drop)] hover:brightness-110 disabled:bg-rule-strong disabled:shadow-none",
 };
 
 const SIZES: Record<Size, string> = {
-  sm: "h-8 px-3 text-[13px] gap-1.5",
-  md: "h-10 px-4 text-[14px] gap-2",
-  lg: "h-12 px-6 text-[15px] gap-2",
+  sm: "h-8 px-3.5 text-[13px] gap-1.5",
+  md: "h-10 px-4.5 text-[14px] gap-2",
+  lg: "h-12 px-7 text-[15px] gap-2.5",
 };
 
 export interface ButtonProps
@@ -40,8 +40,8 @@ export function buttonStyles(opts?: {
   className?: string;
 }) {
   return cn(
-    "inline-flex items-center justify-center rounded-[var(--radius-control)] font-medium",
-    "transition-colors duration-150 select-none whitespace-nowrap",
+    "inline-flex items-center justify-center rounded-[var(--radius-control)] font-semibold",
+    "btn-press transition-all duration-[var(--duration-fast)] select-none whitespace-nowrap",
     VARIANTS[opts?.variant ?? "primary"],
     SIZES[opts?.size ?? "md"],
     opts?.fullWidth && "w-full",
@@ -58,8 +58,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        "inline-flex items-center justify-center rounded-[var(--radius-control)] font-medium",
-        "transition-colors duration-150 disabled:cursor-not-allowed select-none whitespace-nowrap",
+        "inline-flex items-center justify-center rounded-[var(--radius-control)] font-semibold",
+        "btn-press transition-all duration-[var(--duration-fast)] disabled:cursor-not-allowed select-none whitespace-nowrap",
         VARIANTS[variant],
         SIZES[size],
         fullWidth && "w-full",

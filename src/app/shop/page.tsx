@@ -65,7 +65,7 @@ function ShopContent() {
   ].filter(Boolean) as { key: string; label: string }[];
 
   const heading = q
-    ? `Results for “${q}”`
+    ? `Results for "${q}"`
     : categorySlug
       ? (categories?.find((c) => c.slug === categorySlug)?.name ?? "Shop")
       : kind === "book"
@@ -75,10 +75,10 @@ function ShopContent() {
           : "Everything in the shop";
 
   const filterRail = (
-    <div className="space-y-7">
+    <div className="space-y-8">
       <div>
-        <h3 className="text-[14px] font-semibold text-ink">Type</h3>
-        <div className="mt-3 space-y-1.5">
+        <h3 className="text-[13px] font-bold uppercase tracking-wider text-muted">Type</h3>
+        <div className="mt-3 space-y-1">
           {[
             { value: null, label: "Books and gifts" },
             { value: "book", label: "Books only" },
@@ -88,10 +88,10 @@ function ShopContent() {
               key={option.label}
               onClick={() => setParam("kind", option.value)}
               className={cn(
-                "block w-full text-left text-[14px] transition-colors",
+                "block w-full text-left rounded-lg px-3 py-2 text-[14px] transition-all",
                 (kind ?? null) === option.value
-                  ? "font-medium text-ink"
-                  : "text-muted hover:text-ink",
+                  ? "font-semibold text-ink bg-surface"
+                  : "text-muted hover:text-ink hover:bg-surface/50",
               )}
             >
               {option.label}
@@ -101,13 +101,13 @@ function ShopContent() {
       </div>
 
       <div>
-        <h3 className="text-[14px] font-semibold text-ink">Shelf</h3>
-        <div className="mt-3 space-y-1.5">
+        <h3 className="text-[13px] font-bold uppercase tracking-wider text-muted">Shelf</h3>
+        <div className="mt-3 space-y-1">
           <button
             onClick={() => setParam("category", null)}
             className={cn(
-              "block w-full text-left text-[14px]",
-              !categorySlug ? "font-medium text-ink" : "text-muted hover:text-ink",
+              "block w-full text-left rounded-lg px-3 py-2 text-[14px] transition-all",
+              !categorySlug ? "font-semibold text-ink bg-surface" : "text-muted hover:text-ink hover:bg-surface/50",
             )}
           >
             All shelves
@@ -117,25 +117,25 @@ function ShopContent() {
               key={category._id}
               onClick={() => setParam("category", category.slug)}
               className={cn(
-                "flex w-full items-center justify-between gap-2 text-left text-[14px]",
-                categorySlug === category.slug ? "font-medium text-ink" : "text-muted hover:text-ink",
+                "flex w-full items-center justify-between gap-2 text-left rounded-lg px-3 py-2 text-[14px] transition-all",
+                categorySlug === category.slug ? "font-semibold text-ink bg-surface" : "text-muted hover:text-ink hover:bg-surface/50",
               )}
             >
               <span>{category.name}</span>
-              <span className="figure text-[12.5px] text-faint">{category.count}</span>
+              <span className="figure text-[12px] text-faint">{category.count}</span>
             </button>
           ))}
         </div>
       </div>
 
       <div>
-        <h3 className="text-[14px] font-semibold text-ink">Availability</h3>
-        <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-[14px] text-muted">
+        <h3 className="text-[13px] font-bold uppercase tracking-wider text-muted">Availability</h3>
+        <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-[14px] text-muted rounded-lg px-3 py-2 hover:bg-surface/50 transition-colors">
           <input
             type="checkbox"
             checked={inStockOnly}
             onChange={(e) => setParam("stock", e.target.checked ? "1" : null)}
-            className="h-4 w-4 accent-[var(--color-ink)]"
+            className="h-4 w-4 rounded accent-[var(--color-ink)]"
           />
           Hide what is out of stock
         </label>
@@ -149,7 +149,7 @@ function ShopContent() {
       <CartDrawer />
 
       <main className="mx-auto max-w-[1240px] px-4 py-8 sm:px-6 sm:py-10">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4 rise">
           <div>
             <h1 className="font-display text-[30px] leading-tight text-ink sm:text-[36px]">
               {heading}
@@ -163,7 +163,7 @@ function ShopContent() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Button
               variant="secondary"
               size="sm"
@@ -173,7 +173,7 @@ function ShopContent() {
               <SlidersHorizontal className="h-4 w-4" />
               Filters
               {activeFilters.length > 0 && (
-                <span className="figure ml-1 rounded-full bg-ink px-1.5 text-[11px] text-white">
+                <span className="figure ml-1 rounded-full gradient-brass px-1.5 text-[11px] font-bold text-white">
                   {activeFilters.length}
                 </span>
               )}
@@ -194,36 +194,38 @@ function ShopContent() {
         </div>
 
         {activeFilters.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2 rise-delay-1">
             {activeFilters.map((filter) => (
               <button
                 key={filter.key}
                 onClick={() => setParam(filter.key, null)}
-                className="flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-rule-strong
-                           px-3 py-1 text-[13px] text-ink-soft hover:border-ink"
+                className="flex items-center gap-1.5 rounded-full border border-rule-strong bg-white
+                           px-3.5 py-1.5 text-[13px] font-medium text-ink-soft shadow-[var(--shadow-xs)] transition-all hover:border-ink hover:text-ink"
               >
                 {filter.label}
                 <X className="h-3 w-3" aria-hidden />
               </button>
             ))}
-            <Link href="/shop" className="ml-1 text-[13px] text-muted underline-offset-4 hover:underline">
+            <Link href="/shop" className="ml-1 text-[13px] font-medium text-brass-deep underline-offset-4 hover:underline">
               Clear all
             </Link>
           </div>
         )}
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-[210px_1fr] lg:gap-8">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[220px_1fr] lg:gap-10">
           <aside className="hidden lg:block">
-            <div className="sticky top-24">{filterRail}</div>
+            <div className="sticky top-24 rounded-xl border border-rule/60 bg-white p-5 shadow-[var(--shadow-card)]">
+              {filterRail}
+            </div>
           </aside>
 
           <div>
             {result === undefined ? (
-              <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i}>
                     <Skeleton className="aspect-[2/3] w-full" />
-                    <Skeleton className="mt-2.5 h-4 w-3/4" />
+                    <Skeleton className="mt-3 h-4 w-3/4" />
                     <Skeleton className="mt-1.5 h-3 w-1/2" />
                   </div>
                 ))}
@@ -231,7 +233,7 @@ function ShopContent() {
             ) : result.products.length === 0 ? (
               <EmptyState
                 icon={SearchX}
-                title={q ? `No match for “${q}”` : "This shelf is empty"}
+                title={q ? `No match for "${q}"` : "This shelf is empty"}
                 description={
                   q
                     ? "Try the author's surname on its own, or fewer words. If we should be stocking it, call the shop and we will order it in."
@@ -247,8 +249,8 @@ function ShopContent() {
               <>
                 <ProductGrid products={result.products} />
                 {result.hasMore && (
-                  <div className="mt-10 flex justify-center">
-                    <Button variant="secondary" onClick={() => setLimit((l) => l + 24)}>
+                  <div className="mt-12 flex justify-center">
+                    <Button variant="secondary" onClick={() => setLimit((l) => l + 24)} className="px-8">
                       Show more
                     </Button>
                   </div>
@@ -260,18 +262,22 @@ function ShopContent() {
       </main>
 
       {filtersOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-ink-deep/45" onClick={() => setFiltersOpen(false)} aria-hidden />
-          <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-xl bg-white">
-            <div className="sticky top-0 flex items-center justify-between border-b border-rule bg-white px-5 py-4">
-              <h2 className="font-display text-[19px]">Filters</h2>
-              <button onClick={() => setFiltersOpen(false)} aria-label="Close filters" className="rounded p-1 text-muted">
+        <div className="fixed inset-0 z-50 lg:hidden animate-in fade-in duration-200">
+          <div className="absolute inset-0 bg-ink-deep/50 backdrop-blur-sm" onClick={() => setFiltersOpen(false)} aria-hidden />
+          <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-2xl bg-white shadow-[var(--shadow-lift)] animate-in slide-in-from-bottom duration-300">
+            {/* Handle indicator */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="h-1 w-8 rounded-full bg-rule-strong" />
+            </div>
+            <div className="sticky top-0 flex items-center justify-between border-b border-rule bg-white px-5 py-3.5">
+              <h2 className="font-display text-[19px] font-semibold">Filters</h2>
+              <button onClick={() => setFiltersOpen(false)} aria-label="Close filters" className="rounded-lg p-1.5 text-muted hover:bg-surface">
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="px-5 py-5">{filterRail}</div>
             <div className="sticky bottom-0 border-t border-rule bg-white px-5 py-4">
-              <Button fullWidth onClick={() => setFiltersOpen(false)}>
+              <Button fullWidth variant="brass" onClick={() => setFiltersOpen(false)}>
                 Show {result?.total ?? 0} {result?.total === 1 ? "item" : "items"}
               </Button>
             </div>
