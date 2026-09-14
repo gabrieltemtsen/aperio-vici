@@ -50,14 +50,22 @@ export function BookCover({
 }) {
   if (imageUrl) {
     return (
-      // Plain img: covers come from Convex storage with signed, changing URLs.
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={imageUrl}
-        alt={title}
-        loading="lazy"
-        className={cn("h-full w-full object-cover", className)}
-      />
+      <div className="relative h-full w-full overflow-hidden">
+        {/* Plain img: covers come from Convex storage with signed, changing URLs */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imageUrl}
+          alt={title}
+          loading="lazy"
+          className={cn("h-full w-full object-cover transition-transform duration-300 group-hover:scale-105", className)}
+        />
+        {kind === "book" && (
+          <>
+            <div className="book-spine-shadow" />
+            <div className="book-spine-crease" />
+          </>
+        )}
+      </div>
     );
   }
 
@@ -79,7 +87,7 @@ export function BookCover({
       >
         <div className="flex h-full w-full items-center justify-center">
           <div
-            className="flex aspect-square w-[62%] items-center justify-center rounded-full border"
+            className="flex aspect-square w-[62%] items-center justify-center rounded-full border shadow-inner"
             style={{ borderColor: cloth.rule }}
           >
             <span
@@ -96,33 +104,43 @@ export function BookCover({
 
   return (
     <div
-      className={cn("cover-fallback h-full w-full p-3 sm:p-4", className)}
+      className={cn("cover-fallback cloth-texture h-full w-full p-3 sm:p-4", className)}
       style={{ background: cloth.bg, color: cloth.ink }}
       aria-hidden
     >
-      <div className="h-px w-8" style={{ background: cloth.rule }} />
-      <div className="flex-1 pt-3">
-        <p
-          className={cn(
-            "font-display leading-[1.12] tracking-[-0.01em]",
-            compact ? "text-[13px]" : "text-[15px] sm:text-[17px]",
-          )}
-          style={{ textWrap: "balance" }}
-        >
-          {title.length > 58 ? title.slice(0, 56) + "…" : title}
-        </p>
+      <div className="book-spine-shadow" />
+      <div className="book-spine-crease" />
+
+      <div className="relative z-10 flex h-full flex-col justify-between">
+        <div>
+          <div className="h-px w-8" style={{ background: cloth.rule }} />
+          <div className="pt-3">
+            <p
+              className={cn(
+                "font-display leading-[1.14] tracking-[-0.01em]",
+                compact ? "text-[13px]" : "text-[15px] sm:text-[17px]",
+              )}
+              style={{ textWrap: "balance" }}
+            >
+              {title.length > 58 ? title.slice(0, 56) + "…" : title}
+            </p>
+          </div>
+        </div>
+        
+        {author && !compact && (
+          <div className="mt-auto pt-2">
+            <p className="text-[11px] font-medium opacity-75" style={{ letterSpacing: "0.02em" }}>
+              {author}
+            </p>
+          </div>
+        )}
+        <div className="mt-2 h-px w-full opacity-25" style={{ background: cloth.rule }} />
       </div>
-      {author && !compact && (
-        <p className="text-[11px] opacity-70" style={{ letterSpacing: "0.02em" }}>
-          {author}
-        </p>
-      )}
-      <div className="mt-2 h-px w-full opacity-25" style={{ background: cloth.rule }} />
     </div>
   );
 }
 
-/** Vertical spine for the hero shelf. Height varies with title length, as it does on a shelf. */
+/** Vertical spine for the hero shelf. Height varies with title length, with library ribs and tactile hover. */
 export function BookSpine({
   title,
   author,
@@ -133,26 +151,43 @@ export function BookSpine({
   index: number;
 }) {
   const cloth = clothFor(title);
-  const heights = [178, 205, 192, 220, 186, 210, 198, 228];
-  const widths = [30, 38, 26, 44, 34, 30, 40, 28];
+  const heights = [182, 210, 196, 224, 190, 216, 202, 232];
+  const widths = [32, 40, 28, 46, 36, 32, 42, 30];
 
   return (
-    <span
-      className="spine flex items-center justify-center px-1 py-3"
-      style={{
-        background: cloth.bg,
-        color: cloth.ink,
-        height: heights[index % heights.length],
-        width: widths[index % widths.length],
-      }}
-    >
+    <div className="group/spine relative">
       <span
-        className="font-display text-[12px] leading-none tracking-tight"
-        style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+        className="spine flex items-center justify-between px-1.5 py-3.5 select-none"
+        style={{
+          background: cloth.bg,
+          color: cloth.ink,
+          height: heights[index % heights.length],
+          width: widths[index % widths.length],
+        }}
       >
-        {title.length > 26 ? title.slice(0, 24) + "…" : title}
-        {author && <span className="opacity-60"> · {author.split(" ").pop()}</span>}
+        {/* Top ribbed spine band */}
+        <span className="h-1 w-full rounded-sm opacity-30" style={{ background: cloth.rule }} />
+
+        {/* Vertical Title & Author */}
+        <span
+          className="font-display my-auto text-[12.5px] font-medium tracking-tight"
+          style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+        >
+          {title.length > 26 ? title.slice(0, 24) + "…" : title}
+          {author && <span className="opacity-70"> · {author.split(" ").pop()}</span>}
+        </span>
+
+        {/* Bottom ribbed spine band */}
+        <span className="h-1 w-full rounded-sm opacity-30" style={{ background: cloth.rule }} />
       </span>
-    </span>
+
+      {/* Floating spine tooltip preview */}
+      <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-200 group-hover/spine:opacity-100 group-hover/spine:-top-14 z-30">
+        <div className="whitespace-nowrap rounded-md bg-ink-deep px-2.5 py-1 text-[12px] font-medium text-white shadow-lg ring-1 ring-white/10">
+          <p className="font-display">{title}</p>
+          {author && <p className="text-[10px] text-white/60">{author}</p>}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -43,8 +43,10 @@
   --radius-control: 6px;
   --radius-pill: 999px;
 
-  --shadow-lift: 0 12px 32px -12px rgba(16, 32, 58, 0.28);
-  --shadow-drop: 0 1px 2px rgba(16, 32, 58, 0.06);
+  --shadow-lift: 0 14px 34px -10px rgba(16, 32, 58, 0.24);
+  --shadow-drop: 0 1px 3px rgba(16, 32, 58, 0.08);
+  --shadow-book: 0 4px 12px -2px rgba(16, 32, 58, 0.16), 0 2px 4px -1px rgba(16, 32, 58, 0.08);
+  --shadow-book-hover: 0 18px 38px -8px rgba(16, 32, 58, 0.28), 0 6px 12px -2px rgba(16, 32, 58, 0.12);
 }
 
 @layer base {
@@ -140,21 +142,59 @@
     display: flex;
     align-items: flex-end;
     gap: 3px;
-    overflow: hidden;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 8px;
+  }
+  .shelf::-webkit-scrollbar {
+    display: none;
   }
 
   .spine {
     flex: 0 0 auto;
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    border-radius: 1px 3px 3px 1px;
-    box-shadow: inset -3px 0 6px -3px rgba(0, 0, 0, 0.45);
-    transition: transform 180ms ease;
+    border-radius: 2px 4px 4px 2px;
+    box-shadow: inset -4px 0 8px -3px rgba(0, 0, 0, 0.45), 2px 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms ease;
+    cursor: pointer;
+    position: relative;
   }
 
   .spine:hover,
   .spine:focus-visible {
-    transform: translateY(-8px);
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: inset -4px 0 8px -3px rgba(0, 0, 0, 0.3), 0 12px 20px -4px rgba(0, 0, 0, 0.45);
+    z-index: 10;
+  }
+
+  /* Physical book cover 3D spine and crease effects */
+  .book-container {
+    perspective: 800px;
+    transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .book-spine-crease {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 12px;
+    width: 2px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.28), rgba(255, 255, 255, 0.22) 50%, rgba(0, 0, 0, 0.18));
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .book-spine-shadow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 14px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.08) 75%, transparent 100%);
+    pointer-events: none;
+    z-index: 4;
   }
 
   /* Fallback cover art. Built from the title, so every product has a cover. */
@@ -162,11 +202,17 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-image: linear-gradient(
-      110deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(0, 0, 0, 0.12) 100%
-    );
+    background-image: 
+      radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.12) 0%, transparent 60%),
+      linear-gradient(115deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 0, 0, 0.2) 100%);
+    position: relative;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
+  /* Subtle book cloth texture effect */
+  .cloth-texture {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 0);
+    background-size: 4px 4px;
   }
 
   .rule-grid {
@@ -189,11 +235,25 @@
     border-radius: 999px;
   }
 
-  /* One orchestrated entrance, on the hero only. */
+  /* Foil shimmer animation */
+  @keyframes foilShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .foil-text {
+    background: linear-gradient(90deg, #c08a2e 0%, #fae6bd 40%, #f6ecd6 50%, #fae6bd 60%, #c08a2e 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: foilShimmer 5s linear infinite;
+  }
+
+  /* Orchestrated entrances */
   @keyframes rise {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(12px);
     }
     to {
       opacity: 1;
@@ -203,5 +263,15 @@
 
   .rise {
     animation: rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Pulse badge animation */
+  @keyframes softPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.06); opacity: 0.9; }
+  }
+
+  .pulse-soft {
+    animation: softPulse 2.4s ease-in-out infinite;
   }
 }

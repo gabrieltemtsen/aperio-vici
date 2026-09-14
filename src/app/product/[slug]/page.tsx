@@ -205,40 +205,84 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                 </p>
               </div>
             ) : (
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <div className="flex items-center rounded-[var(--radius-control)] border border-rule-strong">
-                  <button
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    disabled={quantity <= 1}
-                    aria-label="Reduce quantity"
-                    className="flex h-11 w-11 items-center justify-center text-muted hover:text-ink disabled:text-rule-strong"
+              <div className="mt-6 space-y-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center rounded-[var(--radius-control)] border border-rule-strong bg-white">
+                    <button
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      disabled={quantity <= 1}
+                      aria-label="Reduce quantity"
+                      className="flex h-11 w-11 items-center justify-center text-muted transition hover:text-ink disabled:text-rule-strong active:scale-90"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="figure w-10 text-center text-[16px] font-semibold">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+                      disabled={quantity >= product.stock}
+                      aria-label="Increase quantity"
+                      className="flex h-11 w-11 items-center justify-center text-muted transition hover:text-ink disabled:text-rule-strong active:scale-90"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  
+                  <Button
+                    size="lg"
+                    onClick={addToBasket}
+                    className="flex-1 sm:flex-none sm:px-8 border border-rule-strong bg-surface text-ink hover:bg-surface-deep active:scale-95"
                   >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="figure w-10 text-center text-[16px]">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                    disabled={quantity >= product.stock}
-                    aria-label="Increase quantity"
-                    className="flex h-11 w-11 items-center justify-center text-muted hover:text-ink disabled:text-rule-strong"
+                    Add to basket
+                  </Button>
+
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      addToBasket();
+                      window.location.href = "/checkout";
+                    }}
+                    className="flex-1 sm:flex-none sm:px-8 bg-gradient-to-r from-brass to-brass-deep text-white shadow-md hover:brightness-105 active:scale-95"
                   >
-                    <Plus className="h-4 w-4" />
-                  </button>
+                    Buy now
+                  </Button>
                 </div>
-                <Button size="lg" onClick={addToBasket} className="flex-1 sm:flex-none sm:px-10">
-                  Add to basket
-                </Button>
+
+                {/* Share & Inquiry buttons */}
+                <div className="flex flex-wrap items-center gap-2 pt-1 text-[13px]">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard?.writeText(window.location.href);
+                      notify("Product link copied to clipboard", "good");
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-rule px-3 py-1.5 text-muted transition hover:border-ink hover:text-ink"
+                  >
+                    <span>Share this book</span>
+                  </button>
+
+                  {settings?.phone && (
+                    <a
+                      href={`https://wa.me/234${settings.phone.replace(/\D/g, "").replace(/^0/, "")}?text=${encodeURIComponent(
+                        `Hello Aperio Vici, I am interested in ordering "${product.title}" (${product.sku}). Is it currently available?`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-rule px-3 py-1.5 text-muted transition hover:border-leaf hover:text-leaf"
+                    >
+                      <span>Inquire on WhatsApp</span>
+                    </a>
+                  )}
+                </div>
               </div>
             )}
 
-            <div className="mt-6 flex flex-col gap-2 border-y border-rule py-4 text-[14px] text-muted">
-              <span className="flex items-center gap-2.5">
+            <div className="mt-6 flex flex-col gap-2.5 rounded-md border border-rule/80 bg-surface/40 p-4 text-[13.5px] text-muted">
+              <span className="flex items-center gap-2.5 font-medium text-ink">
                 <Truck className="h-4 w-4 shrink-0 text-brass-deep" aria-hidden />
-                Delivered anywhere in Nigeria. The fee is shown at checkout once you pick your state.
+                Delivered anywhere in Nigeria. Fee calculated at checkout based on your state.
               </span>
               <span className="flex items-center gap-2.5">
                 <Store className="h-4 w-4 shrink-0 text-brass-deep" aria-hidden />
-                Or collect it from {settings?.address ?? "the shop"} at no extra cost.
+                Or collect in person from {settings?.address ?? "the Lagos bookshop"} with zero delivery fee.
               </span>
             </div>
 

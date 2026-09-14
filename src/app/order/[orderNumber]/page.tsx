@@ -182,10 +182,28 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
               </div>
 
               <div className="px-5 py-4">
-                <p className="text-[14px] leading-relaxed text-ink-soft">
-                  Use <span className="ref text-ink">{order.orderNumber}</span> as the narration or
-                  reference on the transfer. That is how we match your money to this order.
-                </p>
+                <div className="mb-4 rounded-md border border-amber/30 bg-amber-soft/40 p-3.5 text-[13.5px]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-ink">Transfer Narration / Reference</p>
+                      <p className="text-muted mt-0.5">Please put this exact code in your bank app narration:</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard?.writeText(order.orderNumber);
+                        notify(`Copied narration: ${order.orderNumber}`, "good");
+                      }}
+                      className="shrink-0 rounded-[var(--radius-control)] border border-brass bg-white px-3 py-1.5 text-[13px] font-semibold text-ink transition hover:bg-brass hover:text-white active:scale-95 shadow-xs"
+                    >
+                      <span className="ref">{order.orderNumber}</span> · Copy
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-[12.5px] text-leaf mb-4 font-medium">
+                  <Check className="h-4 w-4" />
+                  <span>Your items are held in store while payment clears.</span>
+                </div>
 
                 {bankAccounts.length === 0 ? (
                   <Alert tone="warn" title="No account is set up yet">
@@ -193,19 +211,25 @@ export default function OrderPage({ params }: { params: Promise<{ orderNumber: s
                     Settings before this shows automatically.
                   </Alert>
                 ) : (
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    {bankAccounts.map((account) => (
-                      <div
-                        key={account.accountNumber}
-                        className="rounded-[var(--radius-sheet)] border border-rule px-4 py-3"
-                      >
-                        <p className="text-[14px] font-semibold text-ink">{account.bankName}</p>
-                        <div className="mt-2">
-                          <CopyField label="Account number" value={account.accountNumber} mono />
-                          <CopyField label="Account name" value={account.accountName} />
+                  <div>
+                    <p className="text-[13px] font-medium text-muted mb-2">Available Bank Accounts:</p>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {bankAccounts.map((account) => (
+                        <div
+                          key={account.accountNumber}
+                          className="rounded-[var(--radius-sheet)] border border-rule/90 bg-surface/30 px-4 py-3 shadow-xs hover:border-brass/60 transition"
+                        >
+                          <div className="flex items-center justify-between">
+                            <p className="text-[14px] font-semibold text-ink">{account.bankName}</p>
+                            <span className="text-[10.5px] uppercase font-bold text-brass-deep bg-brass/10 px-1.5 py-0.5 rounded">Verified</span>
+                          </div>
+                          <div className="mt-2">
+                            <CopyField label="Account number" value={account.accountNumber} mono />
+                            <CopyField label="Account name" value={account.accountName} />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 )}
 
