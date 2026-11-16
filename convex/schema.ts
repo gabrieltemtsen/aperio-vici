@@ -38,6 +38,21 @@ export const paymentStatusValidator = v.union(
   v.literal("refunded"),
 );
 
+export const productKindValidator = v.union(
+  v.literal("book"),
+  v.literal("gift"),
+  v.literal("ebook"),
+  v.literal("stationery"),
+  v.literal("card"),
+);
+
+export const publishingStatusValidator = v.union(
+  v.literal("draft"),
+  v.literal("pending_review"),
+  v.literal("approved"),
+  v.literal("rejected"),
+);
+
 const addressValidator = v.object({
   street: v.string(),
   city: v.string(),
@@ -86,7 +101,7 @@ export default defineSchema({
     name: v.string(),
     slug: v.string(),
     description: v.optional(v.string()),
-    kind: v.union(v.literal("book"), v.literal("gift")),
+    kind: productKindValidator,
     sortOrder: v.number(),
     active: v.boolean(),
   })
@@ -96,7 +111,7 @@ export default defineSchema({
   products: defineTable({
     title: v.string(),
     slug: v.string(),
-    kind: v.union(v.literal("book"), v.literal("gift")),
+    kind: productKindValidator,
     sku: v.string(),
     description: v.string(),
     categoryId: v.id("categories"),
@@ -111,6 +126,25 @@ export default defineSchema({
     pages: v.optional(v.number()),
     language: v.optional(v.string()),
     publishedYear: v.optional(v.number()),
+
+    // Regional & geographic metadata
+    region: v.optional(v.string()),  // e.g. "West Africa", "Europe", "Global"
+    country: v.optional(v.string()), // e.g. "Nigeria", "Ghana", "UK"
+
+    // E-book / digital content
+    fileStorageId: v.optional(v.id("_storage")),
+    fileFormat: v.optional(v.union(v.literal("pdf"), v.literal("epub"))),
+    fileSizeBytes: v.optional(v.number()),
+    previewPages: v.optional(v.number()),
+
+    // Card / stationery specifics
+    cardType: v.optional(v.string()),        // e.g. "wedding", "birthday", "anniversary", "diary"
+    customizable: v.optional(v.boolean()),    // can customer add text
+
+    // Publishing workflow (for author self-publishing)
+    submittedByUserId: v.optional(v.id("users")),
+    publishingStatus: v.optional(publishingStatusValidator),
+    rejectionReason: v.optional(v.string()),
 
     price: v.number(), // kobo
     compareAtPrice: v.optional(v.number()), // kobo, for strike-through
@@ -136,6 +170,10 @@ export default defineSchema({
     .index("by_category", ["categoryId"])
     .index("by_published", ["published", "archived"])
     .index("by_featured", ["featured", "published"])
+    .index("by_kind_and_published", ["kind", "published", "archived"])
+    .index("by_language", ["language", "published"])
+    .index("by_publishing_status", ["publishingStatus"])
+    .index("by_submitter", ["submittedByUserId"])
     .searchIndex("search_title", {
       searchField: "title",
       filterFields: ["published", "archived", "kind", "categoryId"],
@@ -277,4 +315,50 @@ export default defineSchema({
     key: v.string(),
     value: v.number(),
   }).index("by_key", ["key"]),
+
+  // ─── Reading progress (Kindle-like) ─────────────────────────────────
+  readingProgress: defineTable({
+    userId: v.id("users"),
+    productId: v.id("products"),
+    currentPage: v.number(),
+    totalPages: v.number(),
+    percentage: v.number(),
+    bookmarks: v.array(v.object({
+      page: v.number(),
+      note: v.optional(v.string()),
+      createdAt: v.number(),
+    })),
+    lastReadAt: v.number(),
+  })
+    .index("by_user_and_product", ["userId", "productId"])
+    .index("by_user", ["userId"]),
+
+  // ─── Author publishing requests ─────────────────────────────────────
+  publishingRequests: defineTable({
+    authorName: v.string(),
+    authorEmail: v.string(),
+    authorBio: v.optional(v.string()),
+    title: v.string(),
+    description: v.string(),
+    language: v.string(),
+    region: v.optional(v.string()),
+    country: v.optional(v.string()),
+    genre: v.optional(v.string()),
+    fileStorageId: v.id("_storage"),
+    fileFormat: v.union(v.literal("pdf"), v.literal("epub")),
+    coverImageStorageId: v.optional(v.id("_storage")),
+    suggestedPrice: v.number(), // kobo
+    status: v.union(
+      v.literal("pending"),
+      v.literal("approved"),
+      v.literal("rejected"),
+    ),
+    reviewNote: v.optional(v.string()),
+    productId: v.optional(v.id("products")),
+    submittedAt: v.number(),
+    reviewedAt: v.optional(v.number()),
+    reviewedByStaffId: v.optional(v.id("users")),
+  })
+    .index("by_status", ["status"])
+    .index("by_email", ["authorEmail"]),
 });

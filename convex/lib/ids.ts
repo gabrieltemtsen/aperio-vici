@@ -32,7 +32,18 @@ export async function nextOrderNumber(ctx: MutationCtx): Promise<string> {
   return `AV-${base36.padStart(4, ALPHABET[0])}`;
 }
 
-export async function nextSku(ctx: MutationCtx, kind: "book" | "gift"): Promise<string> {
+const SKU_PREFIX: Record<string, string> = {
+  book: "BK",
+  gift: "GF",
+  ebook: "EB",
+  stationery: "ST",
+  card: "CD",
+};
+
+export async function nextSku(
+  ctx: MutationCtx,
+  kind: "book" | "gift" | "ebook" | "stationery" | "card",
+): Promise<string> {
   const key = `sku_${kind}`;
   const counter = await ctx.db
     .query("counters")
@@ -47,5 +58,5 @@ export async function nextSku(ctx: MutationCtx, kind: "book" | "gift"): Promise<
     sequence = 1;
     await ctx.db.insert("counters", { key, value: sequence });
   }
-  return `${kind === "book" ? "BK" : "GF"}-${String(sequence).padStart(5, "0")}`;
+  return `${SKU_PREFIX[kind] ?? "XX"}-${String(sequence).padStart(5, "0")}`;
 }

@@ -1,11 +1,14 @@
 import { v } from "convex/values";
 import { query, mutation, QueryCtx } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { productKindValidator } from "./schema";
 import { requireCapability } from "./lib/auth";
 import { slugify } from "./lib/format";
 import { nextSku } from "./lib/ids";
 
 const PAGE_SIZE = 24;
+
+const kindValidator = productKindValidator;
 
 /** Resolves uploaded image storage IDs to signed URLs, falling back to external URLs. */
 async function withImages(ctx: QueryCtx, product: Doc<"products">) {
@@ -29,9 +32,12 @@ export const list = query({
   args: {
     search: v.optional(v.string()),
     categorySlug: v.optional(v.string()),
-    kind: v.optional(v.union(v.literal("book"), v.literal("gift"))),
+    kind: v.optional(kindValidator),
     inStockOnly: v.optional(v.boolean()),
     maxPrice: v.optional(v.number()),
+    language: v.optional(v.string()),
+    region: v.optional(v.string()),
+    country: v.optional(v.string()),
     sort: v.optional(
       v.union(
         v.literal("relevance"),
@@ -95,6 +101,9 @@ export const list = query({
     if (args.kind) results = results.filter((p) => p.kind === args.kind);
     if (args.inStockOnly) results = results.filter((p) => p.stock > 0);
     if (args.maxPrice !== undefined) results = results.filter((p) => p.price <= args.maxPrice!);
+    if (args.language) results = results.filter((p) => p.language?.toLowerCase() === args.language!.toLowerCase());
+    if (args.region) results = results.filter((p) => p.region?.toLowerCase() === args.region!.toLowerCase());
+    if (args.country) results = results.filter((p) => p.country?.toLowerCase() === args.country!.toLowerCase());
 
     const sort = args.sort ?? (search ? "relevance" : "newest");
     if (sort === "price_asc") results.sort((a, b) => a.price - b.price);
@@ -210,7 +219,7 @@ export const findByCode = query({
 export const adminList = query({
   args: {
     search: v.optional(v.string()),
-    kind: v.optional(v.union(v.literal("book"), v.literal("gift"))),
+    kind: v.optional(kindValidator),
     stockFilter: v.optional(
       v.union(v.literal("all"), v.literal("low"), v.literal("out"), v.literal("unpublished")),
     ),
@@ -269,7 +278,7 @@ export const adminGet = query({
 
 const productInput = {
   title: v.string(),
-  kind: v.union(v.literal("book"), v.literal("gift")),
+  kind: kindValidator,
   description: v.string(),
   categoryId: v.id("categories"),
   author: v.optional(v.string()),
@@ -281,6 +290,14 @@ const productInput = {
   pages: v.optional(v.number()),
   language: v.optional(v.string()),
   publishedYear: v.optional(v.number()),
+  region: v.optional(v.string()),
+  country: v.optional(v.string()),
+  fileStorageId: v.optional(v.id("_storage")),
+  fileFormat: v.optional(v.union(v.literal("pdf"), v.literal("epub"))),
+  fileSizeBytes: v.optional(v.number()),
+  previewPages: v.optional(v.number()),
+  cardType: v.optional(v.string()),
+  customizable: v.optional(v.boolean()),
   price: v.number(),
   compareAtPrice: v.optional(v.number()),
   costPrice: v.optional(v.number()),

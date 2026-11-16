@@ -7,7 +7,7 @@ import { formatNaira } from "@/lib/format";
 import { useCart } from "@/lib/cart-store";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
-import { Plus, Check, ShoppingBag } from "lucide-react";
+import { Plus, Check, ShoppingBag, BookOpen } from "lucide-react";
 import type { Id } from "@convex/_generated/dataModel";
 
 export type CardProduct = {
@@ -15,11 +15,12 @@ export type CardProduct = {
   title: string;
   slug: string;
   author?: string;
-  kind: "book" | "gift";
+  kind: "book" | "gift" | "ebook" | "stationery" | "card";
   price: number;
   compareAtPrice?: number;
   stock: number;
   coverImage: string | null;
+  fileStorageId?: string;
 };
 
 export function ProductCard({ product }: { product: CardProduct }) {
@@ -58,7 +59,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
           "relative overflow-hidden rounded-xl border border-rule/70 bg-surface",
           "shadow-[var(--shadow-book)] transition-all duration-[var(--duration-normal)]",
           "group-hover:-translate-y-2 group-hover:shadow-[var(--shadow-book-hover)]",
-          product.kind === "book" ? "aspect-[2/3]" : "aspect-square",
+          product.kind === "book" || product.kind === "ebook" ? "aspect-[2/3]" : "aspect-square",
         )}
       >
         <BookCover
@@ -76,7 +77,14 @@ export function ProductCard({ product }: { product: CardProduct }) {
           </div>
         )}
         
-        {reduced && !outOfStock && (
+        {product.kind === "ebook" && (
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-ink-deep/80 backdrop-blur-sm px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white shadow-md ring-1 ring-white/15">
+            <BookOpen className="h-3 w-3" />
+            E-Book
+          </span>
+        )}
+
+        {reduced && !outOfStock && product.kind !== "ebook" && (
           <span className="absolute left-2.5 top-2.5 rounded-full gradient-brass px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-white shadow-md ring-1 ring-white/20">
             {Math.round((1 - product.price / product.compareAtPrice!) * 100)}% off
           </span>

@@ -11,7 +11,7 @@ export type CartLine = {
   slug: string;
   price: number; // kobo, for display only — the server re-prices at checkout
   imageUrl?: string | null;
-  kind: "book" | "gift";
+  kind: "book" | "gift" | "ebook" | "stationery" | "card";
   maxStock: number;
   quantity: number;
 };

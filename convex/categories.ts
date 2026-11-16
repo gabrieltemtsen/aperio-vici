@@ -1,10 +1,10 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { productKindValidator } from "./schema";
 import { requireCapability } from "./lib/auth";
 import { slugify } from "./lib/format";
-
 export const list = query({
-  args: { kind: v.optional(v.union(v.literal("book"), v.literal("gift"))) },
+  args: { kind: v.optional(productKindValidator) },
   handler: async (ctx, args) => {
     const all = await ctx.db.query("categories").collect();
     const active = all.filter((c) => c.active && (!args.kind || c.kind === args.kind));
@@ -35,7 +35,7 @@ export const listWithCounts = query({
 export const create = mutation({
   args: {
     name: v.string(),
-    kind: v.union(v.literal("book"), v.literal("gift")),
+    kind: productKindValidator,
     description: v.optional(v.string()),
     sortOrder: v.optional(v.number()),
   },
